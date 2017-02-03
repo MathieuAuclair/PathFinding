@@ -13,7 +13,7 @@ var ctx = canvas.getContext("2d");
 //h(n) stand for heuristics
 
 //sorry for these poor name, but they actually refers to the formula
-var point = {
+function point(){
   this.x = i;
   this.y = j;
 	
@@ -23,8 +23,7 @@ var point = {
 
   this.draw = function(i,j){
   	ctx.rect(this.x*pointWidth, this.y*pointHeight, pointWidth, pointHeight);
-	ctx.fill(255,255,255);
-	ctx.stroke(0,0,0);
+	ctx.stroke();
   }
 }
 
@@ -32,23 +31,24 @@ var point = {
 var start;
 var end;
 
-var rows = 5;
-var cols = 5;
-var grid = new Array(cols);
+var rows = 6;
+var cols = 6;
+var grid = new Array(rows);
 var pointWidth = canvas.width/cols;
 var pointHeight = canvas.height/rows;
 
 //create point into the 2D array
 for (i = 0; i < cols; i++)
 {
+	grid[i] = new Array(cols);
 	for (j = 0; j < rows; j++){
-		grid[i][j] = new point();
+		grid[i][j] = new point(i, j);
 	}
 }
 
 //assign end/start point
 start = grid[0][0];
-end = grid[--cols][--rows];
+end = grid[cols-1][rows-1];
 
 //point that need to be checked
 var openSet = [];
