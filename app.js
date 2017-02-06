@@ -1,6 +1,5 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-
 //A* algorithm (heuristics)
 //made from this tutorial: https://www.youtube.com/watch?v=aKYlikFAV4k
 //check it for yourself!
@@ -28,12 +27,10 @@ function point(){
   }
 }
 
-//declare start and end point
-var start;
-var end;
-
+//declare size of the grid
 var rows = 6;
 var cols = 6;
+
 var grid = new Array(rows);
 var pointWidth = canvas.width/cols;
 var pointHeight = canvas.height/rows;
@@ -47,16 +44,11 @@ for (i = 0; i < cols; i++)
 	}
 }
 
-//assign end/start point
-start = grid[0][0];
-end = grid[cols-1][rows-1];
 
 //point that need to be checked
 var openSet = [];
-
 //point where path is starting
-openSet[--openSet.lenght] = start;
-
+openSet[0] = grid[0][0];
 
 
 //point that are checked and closed
@@ -65,25 +57,23 @@ var closeSet = [];
 
 //setting a loop for drawing on canvas
 var loop = setInterval(function(){ 
-	if(openSet.lenght > 0)
-		{
-			//keep going on!
-		}
-	else
-		{
-			//there is no solution
-		clearInterval(loop);
-		}
+
 	for(i = 0; i < cols; i++){
 		for(j = 0; j < rows; j++){
 			grid[i][j].draw("white");
 		}
 	}
 
-grid[1][2].draw("red");
+
+	for(i = 0; i < closeSet.length; i++){
+		closeSet[i].draw("red");
+	}
+
+	for(i = 0; i < openSet.length; i++){
+		openSet[i].draw("green");
+	}
 
 }, 100);
-
 
 
 
