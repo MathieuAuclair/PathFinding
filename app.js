@@ -21,9 +21,10 @@ function point(){
   this.g = 0;
   this.h = 0;
 
-  this.draw = function(i,j){
-  	ctx.rect(this.x*pointWidth, this.y*pointHeight, pointWidth, pointHeight);
-	ctx.stroke();
+  this.draw = function(color){
+	ctx.fillStyle = color;
+  	ctx.fillRect(this.x*pointWidth, this.y*pointHeight, pointWidth, pointHeight);
+	ctx.strokeRect(this.x*pointWidth, this.y*pointHeight, pointWidth, pointHeight);
   }
 }
 
@@ -64,25 +65,24 @@ var closeSet = [];
 
 //setting a loop for drawing on canvas
 var loop = setInterval(function(){ 
-if(openSet.lenght > 0)
-	{
-		//keep going on!
-	}
-else
-	{
-		//there is no solution
-	clearInterval(loop);
-	}
-for(i = 0; i < cols; i++){
-	for(j = 0; j < rows; j++){
-		grid[i][j].draw(i,j);
+	if(openSet.lenght > 0)
+		{
+			//keep going on!
+		}
+	else
+		{
+			//there is no solution
+		clearInterval(loop);
+		}
+	for(i = 0; i < cols; i++){
+		for(j = 0; j < rows; j++){
+			grid[i][j].draw("white");
 		}
 	}
 
+grid[1][2].draw("red");
+
 }, 100);
-
-
-
 
 
 
