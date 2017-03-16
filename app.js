@@ -1,6 +1,4 @@
 
-
-
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
@@ -10,7 +8,6 @@ var ctx = canvas.getContext("2d");
 //f(n) = g(n) + h(n);
 
 //f(n) stand for cost for moving
-//g(n) stand for actual distance from destination
 //h(n) stand for heuristics
 
 //sorry for these poor name, but they actually refers to the formula
@@ -19,22 +16,9 @@ function point(xValue,yValue){
   this.y = yValue;
 	
   this.f = 0;
-  this.g = 0;
   this.h = 0;
-
-  this.nearPoint = [];
-  
-  this.addNearPoint = function(){
-	//adding every near point
-	if(this.x < cols-1)
-  	this.nearPoint[this.nearPoint.length] = grid[this.x+1][this.y];
-	if(this.x > 0)
-	this.nearPoint[this.nearPoint.length] = grid[this.x-1][this.y];
-	if(this.y < rows-1)
-	this.nearPoint[this.nearPoint.length] = grid[this.x][this.y+1];
-	if(this.y > 0)
-	this.nearPoint[this.nearPoint.length] = grid[this.x][this.y-1];
-  }
+  this.parentPath = 0;
+  this.open = false;
 
   this.draw = function(color){
 	ctx.fillStyle = color;
@@ -44,8 +28,8 @@ function point(xValue,yValue){
 }
 
 //declare size of the grid
-var rows = 9;
-var cols = 9;
+var rows = 9; //y
+var cols = 9; //x
 
 var grid = new Array(rows);
 var pointWidth = canvas.width/cols;
@@ -59,20 +43,25 @@ for (i = 0; i < cols; i++){
 	}
 }
 
-//add nearPoint to every point after they've been generated
-for (i = 0; i < cols; i++){
-	for (j = 0; j < rows; j++){
-		grid[i][j].addNearPoint();
-	}
-}
 
 
 //set the end of the path
 var end = grid[cols-1][rows-1];
+
+//give a heuristic value to all spot after defining end spot
+for (i=0; i < cols; i++){
+	for(j=0; j < rows; j++){
+		grid[i][j].h = (grid[i][j].x - end.x)+(grid[i][j].y - end.y);
+	}
+}
+
+
 //point that need to be checked
 var openSet = [];
+
 //point where path is starting
 openSet[0] = grid[0][0];
+grid[0][0].open = true;
 
 
 //point that are checked and closed
@@ -81,6 +70,34 @@ var closeSet = [];
 
 //setting a loop for drawing on canvas
 var loop = setInterval(function(){ 
+
+	//define open set member
+	for(i = 0; i < openSet.length; i++){		
+		if(openSet[i].x > 0){                                              	     //if it's not out of bound
+			if(grid[openSet[i].x-1][openSet[i].y].open == false){ 		      //if it's not already part of openSet
+				openSet[openSet.length] = (grid[openSet[i].x-1][openSet[i].y]);//add it to openSet at the end of the list
+				grid[openSet[i].x-1][openSet[i].y].open = true; 		//make sure we don't select him again
+			}
+		}
+		if(openSet[i].x < (cols-1)){
+			if(grid[openSet[i].x+1][openSet[i].y].open == false){
+				openSet[openSet.length] = (grid[openSet[i].x+1][openSet[i].y]);
+				grid[openSet[i].x+1][openSet[i].y].open = true;
+			}
+		}
+		if(openSet[i].y < (rows-1)){
+			if(grid[openSet[i].x][openSet[i].y+1].open == false){
+				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y+1]);
+				grid[openSet[i].x][openSet[i].y+1].open = true;
+			}
+		}
+		if(openSet[i].y > 0){
+			if(grid[openSet[i].x][openSet[i].y-1].open == false){
+				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y-1]);
+				grid[openSet[i].x][openSet[i].y-1].open = true;
+			}
+		}
+	}	
 
 	//draw the whole grid
 	for(i=0; i < cols; i++){
@@ -100,41 +117,6 @@ var loop = setInterval(function(){
 	for(i = 0; i < openSet.length; i++){
 		openSet[i].draw("green");
 	}
-
-	//if no solution to explore, stop the pattern
-	if(openSet.length > 0)
-	{
-		var lowestIndex = 0;
-		for (i = 0; i < openSet.length; i++){
-			if(openSet[i].f < openSet[lowestIndex].f)
-			{
-				lowestIndex = i;
-				console.log(i);
-			}
-		}
-		//check if job is done
-		if(openSet[lowestIndex].x == end.x && openSet[lowestIndex].y == end.y)
-		{
-			console.log("done");
-		}	
-		closeSet[closeSet.length] = openSet[lowestIndex];
-		removeFromArray(openSet, openSet[lowestIndex]);
-	}
-	else
-	{
-		//no solution
-	}
 }, 100);
-
-
-
-function removeFromArray(array, index){
-	for (i = --array.length; i >= 0; i--){
-		if(array[i] == index)
-		{
-			array.splice(i,1);
-		}
-	}
-}
 
 
