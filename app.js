@@ -76,28 +76,45 @@ var loop = setInterval(function(){
 		if(openSet[i].x > 0){                                              	     //if it's not out of bound
 			if(grid[openSet[i].x-1][openSet[i].y].open == false){ 		      //if it's not already part of openSet
 				openSet[openSet.length] = (grid[openSet[i].x-1][openSet[i].y]);//add it to openSet at the end of the list
-				grid[openSet[i].x-1][openSet[i].y].open = true; 		//make sure we don't select him again
+				grid[openSet[i].x-1][openSet[i].y].open = true;			//make sure we don't select him again
+				grid[openSet[i].x-1][openSet[i].y].parentPath = grid[openSet[i].x][openSet[i].y]; //set the parent
 			}
 		}
 		if(openSet[i].x < (cols-1)){
 			if(grid[openSet[i].x+1][openSet[i].y].open == false){
 				openSet[openSet.length] = (grid[openSet[i].x+1][openSet[i].y]);
 				grid[openSet[i].x+1][openSet[i].y].open = true;
+				grid[openSet[i].x+1][openSet[i].y].parentPath = grid[openSet[i].x][openSet[i].y];
 			}
 		}
 		if(openSet[i].y < (rows-1)){
 			if(grid[openSet[i].x][openSet[i].y+1].open == false){
 				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y+1]);
 				grid[openSet[i].x][openSet[i].y+1].open = true;
+				grid[openSet[i].x][openSet[i].y+1].parentPath = grid[openSet[i].x][openSet[i].y];
 			}
 		}
 		if(openSet[i].y > 0){
 			if(grid[openSet[i].x][openSet[i].y-1].open == false){
 				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y-1]);
 				grid[openSet[i].x][openSet[i].y-1].open = true;
+				grid[openSet[i].x][openSet[i].y-1].parentPath = grid[openSet[i].x][openSet[i].y];
 			}
 		}
+
+		//add point to closed set
+	
+		closeSet.push(grid[openSet[i].x][openSet[i].y]);
+
+		//remove point from openSet
+		
+		openSet.splice(grid[openSet[i].x][openSet[i].y]);
+
+
 	}	
+
+
+
 
 	//draw the whole grid
 	for(i=0; i < cols; i++){
