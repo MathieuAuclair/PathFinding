@@ -104,11 +104,11 @@ var loop = setInterval(function(){
 
 		//add point to closed set
 	
-		closeSet.push(grid[openSet[i].x][openSet[i].y]);
+		closeSet[closeSet.length] = grid[openSet[i].x][openSet[i].y];
 
 		//remove point from openSet
-		
-		openSet.splice(grid[openSet[i].x][openSet[i].y]);
+	
+		openSet.splice(openSet.indexOf(grid[openSet[i].x][openSet[i].y]), 1);
 
 
 	}	
