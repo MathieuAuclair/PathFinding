@@ -2,6 +2,18 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+//set the end of the path
+var end = new point(20,24);
+
+//start point
+var start = new point(0,0);
+
+//declare size of the grid
+var rows = 25; //y
+var cols = 25; //x
+
+
+
 //check it for yourself!
 
 //the algorithm for A* is
@@ -27,10 +39,6 @@ function point(xValue,yValue){
   }
 }
 
-//declare size of the grid
-var rows = 9; //y
-var cols = 9; //x
-
 var grid = new Array(rows);
 var pointWidth = canvas.width/cols;
 var pointHeight = canvas.height/rows;
@@ -43,15 +51,10 @@ for (i = 0; i < cols; i++){
 	}
 }
 
-
-
-//set the end of the path
-var end = grid[cols-1][rows-1];
-
 //give a heuristic value to all spot after defining end spot
 for (i=0; i < cols; i++){
 	for(j=0; j < rows; j++){
-		grid[i][j].h = (grid[i][j].x - end.x)+(grid[i][j].y - end.y);
+		grid[i][j].h = Math.abs(grid[i][j].x - end.x)+Math.abs(grid[i][j].y - end.y);
 	}
 }
 
@@ -60,60 +63,98 @@ for (i=0; i < cols; i++){
 var openSet = [];
 
 //point where path is starting
-openSet[0] = grid[0][0];
-grid[0][0].open = true;
-
+openSet[0] = start;
+openSet[0].open = true;
 
 //point that are checked and closed
 var closeSet = [];
+
+//declare an index
+var index;
+
+
+//make a function that return grid point so code is lighter
+function getPoint(offsetX, offsetY, current){
+	var x = openSet[current].x - offsetX; 
+	var y = openSet[current].y - offsetY;
+
+	return grid[x][y];
+}
 
 
 //setting a loop for drawing on canvas
 var loop = setInterval(function(){ 
 
+	index = 0;
+
 	//define open set member
-	for(i = 0; i < openSet.length; i++){		
-		if(openSet[i].x > 0){                                              	     //if it's not out of bound
-			if(grid[openSet[i].x-1][openSet[i].y].open == false){ 		      //if it's not already part of openSet
-				openSet[openSet.length] = (grid[openSet[i].x-1][openSet[i].y]);//add it to openSet at the end of the list
-				grid[openSet[i].x-1][openSet[i].y].open = true;			//make sure we don't select him again
-				grid[openSet[i].x-1][openSet[i].y].parentPath = grid[openSet[i].x][openSet[i].y]; //set the parent
-			}
+	while(index < openSet.length && grid[end.x][end.y].open == false){		
+		var bestChoice0 = false, bestChoice1 = false, bestChoice2 = false, bestChoice3 = false;
+		var heuristic = rows+cols;
+		
+		if(getPoint(0,0,index).y < cols-1)//y + 1
+		if(getPoint(0,-1,index).open == false && heuristic >= getPoint(0,-1,index).h){  //if it's not already part of openSet
+			bestChoice0 = true;
+			heuristic = getPoint(0,-1,index).h;
 		}
-		if(openSet[i].x < (cols-1)){
-			if(grid[openSet[i].x+1][openSet[i].y].open == false){
-				openSet[openSet.length] = (grid[openSet[i].x+1][openSet[i].y]);
-				grid[openSet[i].x+1][openSet[i].y].open = true;
-				grid[openSet[i].x+1][openSet[i].y].parentPath = grid[openSet[i].x][openSet[i].y];
-			}
+
+		if(getPoint(0,0,index).x < rows-1)//x + 1
+		if(getPoint(-1,0,index).open == false && heuristic >= getPoint(-1,0,index).h){  
+			bestChoice1 = true;
+			heuristic = getPoint(-1,0,index).h;
+			
 		}
-		if(openSet[i].y < (rows-1)){
-			if(grid[openSet[i].x][openSet[i].y+1].open == false){
-				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y+1]);
-				grid[openSet[i].x][openSet[i].y+1].open = true;
-				grid[openSet[i].x][openSet[i].y+1].parentPath = grid[openSet[i].x][openSet[i].y];
-			}
+
+		if(getPoint(0,0,index).y > 0)//y - 1
+		if(getPoint(0,1,index).open == false && heuristic >= getPoint(0,1,index).h){   
+			bestChoice2 = true;
+			heuristic = getPoint(0,1,index).h;
 		}
-		if(openSet[i].y > 0){
-			if(grid[openSet[i].x][openSet[i].y-1].open == false){
-				openSet[openSet.length] = (grid[openSet[i].x][openSet[i].y-1]);
-				grid[openSet[i].x][openSet[i].y-1].open = true;
-				grid[openSet[i].x][openSet[i].y-1].parentPath = grid[openSet[i].x][openSet[i].y];
-			}
+
+		if(getPoint(0,0,index).x > 0)//x - 1
+		if(getPoint(1,0,index).open == false && heuristic >= getPoint(1,0,index).h){    
+			bestChoice3 = true;
+			heuristic = getPoint(1,0,index).h;
 		}
+
+		
+		//this code is real bad, but for now this will work
+		//these if statement check if 
+
+		if(bestChoice0){
+			openSet[openSet.length] = (grid[openSet[index].x][openSet[index].y+1]);//add it to openSet at the end of the list
+			grid[openSet[index].x][openSet[index].y+1].open = true;			//make sure we don't select him again
+			grid[openSet[index].x][openSet[index].y+1].parentPath = grid[openSet[index].x][openSet[index].y]; //set the parent
+			}
+		if(bestChoice1){
+			openSet[openSet.length] = (grid[openSet[index].x+1][openSet[index].y]);
+			grid[openSet[index].x+1][openSet[index].y].open = true;
+			grid[openSet[index].x+1][openSet[index].y].parentPath = grid[openSet[index].x][openSet[index].y];
+			}
+		if(bestChoice2){
+			openSet[openSet.length] = (grid[openSet[index].x][openSet[index].y-1]);
+			grid[openSet[index].x][openSet[index].y-1].open = true;
+			grid[openSet[index].x][openSet[index].y-1].parentPath = grid[openSet[index].x][openSet[index].y];
+			}
+		if(bestChoice3){
+			openSet[openSet.length] = (grid[openSet[index].x-1][openSet[index].y]);
+			grid[openSet[index].x-1][openSet[index].y].open = true;
+			grid[openSet[index].x-1][openSet[index].y].parentPath = grid[openSet[index].x][openSet[index].y];
+			}
+
 
 		//add point to closed set
 	
-		closeSet[closeSet.length] = grid[openSet[i].x][openSet[i].y];
+		closeSet[closeSet.length] = grid[openSet[index].x][openSet[index].y];
+		
 
 		//remove point from openSet
 	
-		openSet.splice(openSet.indexOf(grid[openSet[i].x][openSet[i].y]), 1);
+		openSet.splice(openSet.indexOf(grid[openSet[index].x][openSet[index].y]), 1);
+		
+		index++;
 
-
-	}	
-
-
+	}
 
 
 	//draw the whole grid
@@ -134,6 +175,9 @@ var loop = setInterval(function(){
 	for(i = 0; i < openSet.length; i++){
 		openSet[i].draw("green");
 	}
-}, 100);
+
+	end.draw("yellow");
+	start.draw("blue");
+}, 10);
 
 
