@@ -3,7 +3,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 //set the end of the path
-var end = new point(20,24);
+var end = new point(24,24);
 
 //start point
 var start = new point(0,0);
@@ -11,7 +11,6 @@ var start = new point(0,0);
 //declare size of the grid
 var rows = 25; //y
 var cols = 25; //x
-
 
 
 //check it for yourself!
@@ -26,12 +25,9 @@ var cols = 25; //x
 function point(xValue,yValue){
   this.x = xValue;
   this.y = yValue;
-	
-  this.f = 0;
   this.h = 0;
   this.parentPath = 0;
   this.open = false;
-
   this.draw = function(color){
 	ctx.fillStyle = color;
   	ctx.fillRect(this.x*pointWidth, this.y*pointHeight, pointWidth, pointHeight);
@@ -58,6 +54,20 @@ for (i=0; i < cols; i++){
 	}
 }
 
+
+//
+////
+/////
+var wall = [];
+for( i = 0; i < 18; i++ ){
+	var w = new point(i, 5);
+	grid[i][5].open = true;
+	w.open = true;
+	wall.push(w);
+}
+//////
+////
+//
 
 //point that need to be checked
 var openSet = [];
@@ -174,6 +184,11 @@ var loop = setInterval(function(){
 	//draw open Set
 	for(i = 0; i < openSet.length; i++){
 		openSet[i].draw("green");
+	}
+
+	//draw wall
+	for (i = 0; i < wall.length; i++){
+		wall[i].draw("gray")
 	}
 
 	end.draw("yellow");
