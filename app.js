@@ -59,7 +59,7 @@ for (i=0; i < cols; i++){
 ////
 /////
 var wall = [];
-for( i = 0; i < 18; i++ ){
+for( i = 0; i < 22; i++ ){
 	var w = new point(i, 5);
 	grid[i][5].open = true;
 	w.open = true;
@@ -132,22 +132,22 @@ var loop = setInterval(function(){
 		//these if statement check if 
 
 		if(bestChoice0){
-			openSet[openSet.length] = (grid[openSet[index].x][openSet[index].y+1]);//add it to openSet at the end of the list
+			openSet[openSet.length] = getPoint(0,-1,index);//add it to openSet at the end of the list
 			grid[openSet[index].x][openSet[index].y+1].open = true;			//make sure we don't select him again
 			grid[openSet[index].x][openSet[index].y+1].parentPath = grid[openSet[index].x][openSet[index].y]; //set the parent
 			}
 		if(bestChoice1){
-			openSet[openSet.length] = (grid[openSet[index].x+1][openSet[index].y]);
+			openSet[openSet.length] = getPoint(-1,0,index);
 			grid[openSet[index].x+1][openSet[index].y].open = true;
 			grid[openSet[index].x+1][openSet[index].y].parentPath = grid[openSet[index].x][openSet[index].y];
 			}
 		if(bestChoice2){
-			openSet[openSet.length] = (grid[openSet[index].x][openSet[index].y-1]);
+			openSet[openSet.length] = getPoint(0,1,index);
 			grid[openSet[index].x][openSet[index].y-1].open = true;
 			grid[openSet[index].x][openSet[index].y-1].parentPath = grid[openSet[index].x][openSet[index].y];
 			}
 		if(bestChoice3){
-			openSet[openSet.length] = (grid[openSet[index].x-1][openSet[index].y]);
+			openSet[openSet.length] = getPoint(1,0,index);
 			grid[openSet[index].x-1][openSet[index].y].open = true;
 			grid[openSet[index].x-1][openSet[index].y].parentPath = grid[openSet[index].x][openSet[index].y];
 			}
@@ -189,6 +189,13 @@ var loop = setInterval(function(){
 	//draw wall
 	for (i = 0; i < wall.length; i++){
 		wall[i].draw("gray")
+	}
+
+	//draw path
+	var parentPoint = grid[end.x][end.y].parentPath;
+	while(parentPoint.parentPath != null){
+			parentPoint.draw("brown");
+			parentPoint = parentPoint.parentPath;
 	}
 
 	end.draw("yellow");
