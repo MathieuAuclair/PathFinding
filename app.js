@@ -43,8 +43,10 @@ function PathFinding(){
 		this.grid.initGrid();
 
 		//set pathfinding
-		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
 		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
+		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
+		this.startNode.hCost = this.getDistance(this.startNode, this.targetNode);
+		this.startNode.gCost = 14;
 		this.openSet.push(this.startNode);
 		
 		//color the end line
@@ -99,7 +101,7 @@ function PathFinding(){
 
 
 			if(this.openSet[i].fCost() < currentNode.fCost() || (this.openSet[i].fCost() == currentNode.fCost()) && this.openSet[i].hCost < currentNode.hCost){
-				currentNode = openSet[i];
+				currentNode = this.openSet[i];
 				this.openSet.splice(i,1);
 				this.closedSet.push(currentNode);
 				currentNode.draw("red", this.grid.nodeSize);
