@@ -3,12 +3,13 @@ var ctx = canvas.getContext("2d");
 
 function Node(walkable, nodePosition){
 	this.isWalkable = walkable,
-	this.position = nodePosition
+	this.position = nodePosition,
+	this.parentNode,
 	this.gCost,
 	this.hCost,
 	this.fCost = function(){
-		return this.gCost + this.fCost;
-	}
+		return this.gCost + this.hCost;
+	},
 	this.draw = function(color, size){
 		ctx.fillStyle = color;
   		ctx.fillRect(this.position.x*size.x, this.position.y*size.y, size.x, size.y);
@@ -46,14 +47,29 @@ function PathFinding(){
 		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
 		this.openSet.push(this.startNode);
 	},
+	this.getDistance = function(nodeA, nodeB){ //heuristic
+		var distX = Math.abs(nodeA.position.x - nodeB.position.x);
+		var distY = Math.abs(nodeA.position.y - nodeB.position.y);
+
+		if(distX > distY){
+			return 14*distY + 10*(distX-distY);
+		}
+		else{
+			return 14*distX + 10*(distY-distX);
+		}
+		
+	},
+
 	this.getNeighbours = function(parentNode){
 		var neighbours = [];
 		for(x=parentNode.position.x-1; x<=parentNode.position.x+1; x++){
 			for(y=parentNode.position.y-1; y<=parentNode.position.y+1; y++){
-				if((x != 0 && y != 0)){
-					var neighboursPosition = this.grid.nodes[x][y].position;
-					if(neighboursPosition.x >= 0 && neighboursPosition.x < this.grid.gridWorldSize.x && neighboursPosition.y >= 0 && neighboursPosition.y < this.grid.worldSize.y){
-						neighbours.push(this.grid.nodes[x][y]);
+				if((x != 0 || y != 0)){
+					var neighboursPosition = new Vector2d(x,y);
+					if(neighboursPosition.x >= 0 && neighboursPosition.x < this.grid.gridWorldSize.x && neighboursPosition.y >= 0 && neighboursPosition.y < this.grid.gridWorldSize.y){
+						if(this.closedSet.indexOf(this.grid.nodes[x][y])==-1 && this.grid.nodes[x][y].isWalkable){
+							neighbours.push(this.grid.nodes[x][y]);
+						}
 					}
 				}
 			}
@@ -75,10 +91,31 @@ function PathFinding(){
 					console.log("The solution has been found!");
 					clearInterval(ViewLoop);
 				}
-
-				openSet.push(this.grid.getNeighbours(currentNode));
+				
+				var neighbours = this.getNeighbours(currentNode);
+				neighbours.forEach(function(neighbourNode){
+					var newMovementCostToNeighbour = currentNode.gCost + this.getDistance(currentNode, neighbourNode);
+					if(newMovementCostToNeighbour < neighbourNode.gCost || openSet.indexOf(neighbourNode) == -1){
+						neighbourNode.gCost = newMovementCostToNeighbour;
+						neighbourNode.hCost = this.getDistance(neighbourNode, this.targetNode);
+						neighbourNode.parentNode = currentNode;
+						this.openSet.push(neighbourNode)
+					}
+				});
+				
 			}	
 		}
+	},
+	this.retracePath = function(){
+		var path = [];
+		var currentNode
+
+		while(currentNode != this.startNode){
+			path.push(currentNode);
+			currentNode.draw("black", this.grid.gridWorldSize);
+			currentNode = currentNode.parentNode;
+		}
+		return path;
 	}
 }
 
