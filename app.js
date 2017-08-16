@@ -45,14 +45,38 @@ function PathFinding(){
 		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
 		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
 		this.openSet.push(this.startNode);
-	}
+	},
+	this.getNeighbours = function(parentNode){
+		var neighbours = [];
+		for(x=parentNode.position.x-1; x<=parentNode.position.x+1; x++){
+			for(y=parentNode.position.y-1; y<=parentNode.position.y+1; y++){
+				if((x != 0 && y != 0)){
+					var neighboursPosition = this.grid.nodes[x][y].position;
+					if(neighboursPosition.x >= 0 && neighboursPosition.x < this.grid.gridWorldSize.x && neighboursPosition.y >= 0 && neighboursPosition.y < this.grid.worldSize.y){
+						neighbours.push(this.grid.nodes[x][y]);
+					}
+				}
+			}
+		}
+		return neighbours;
+	},
 	this.FindPath = function(){
 		var currentNode = this.openSet[0];
+		currentNode.draw("green", this.grid.nodeSize)
 		for(i=0; i<this.openSet.length; i++){
+			//fucken ugly but well....
 			if(this.openSet[i].fCost() < currentNode.fCost() || (this.openSet[i].fCost() == currentNode.fCost()) && this.openSet[i].hCost < currentNode.hCost){
 				currentNode = openSet[i];
 				this.openSet.splice(i,1);
 				this.closedSet.push(currentNode);
+				currentNode.draw("red", this.grid.nodeSize);
+				
+				if(currentNode.position == targetNode.position){
+					console.log("The solution has been found!");
+					clearInterval(ViewLoop);
+				}
+
+				openSet.push(this.grid.getNeighbours(currentNode));
 			}	
 		}
 	}
