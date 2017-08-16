@@ -5,8 +5,8 @@ function Node(walkable, nodePosition){
 	this.isWalkable = walkable,
 	this.position = nodePosition,
 	this.parentNode,
-	this.gCost,
-	this.hCost,
+	this.gCost = 0,
+	this.hCost = 0,
 	this.fCost = function(){
 		return this.gCost + this.hCost;
 	},
@@ -46,6 +46,9 @@ function PathFinding(){
 		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
 		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
 		this.openSet.push(this.startNode);
+		
+		//color the end line
+		this.targetNode.draw("blue", this.grid.nodeSize);
 	},
 	this.getDistance = function(nodeA, nodeB){ //heuristic
 		var distX = Math.abs(nodeA.position.x - nodeB.position.x);
@@ -78,9 +81,23 @@ function PathFinding(){
 	},
 	this.FindPath = function(){
 		var currentNode = this.openSet[0];
-		currentNode.draw("green", this.grid.nodeSize)
+		currentNode.draw("green", this.grid.nodeSize);
 		for(i=0; i<this.openSet.length; i++){
 			//fucken ugly but well....
+			
+			var neighbours = this.getNeighbours(currentNode);
+			neighbours.forEach(function(neighbourNode){
+				var newMovementCostToNeighbour = currentNode.gCost + PathFinder.getDistance(currentNode, neighbourNode);
+				if(newMovementCostToNeighbour < neighbourNode.gCost || PathFinder.openSet.indexOf(neighbourNode) == -1){
+					neighbourNode.gCost = newMovementCostToNeighbour;
+					neighbourNode.hCost = PathFinder.getDistance(neighbourNode, PathFinder.targetNode);
+					neighbourNode.parentNode = currentNode;
+					PathFinder.openSet.push(neighbourNode);
+				}
+			});
+
+
+
 			if(this.openSet[i].fCost() < currentNode.fCost() || (this.openSet[i].fCost() == currentNode.fCost()) && this.openSet[i].hCost < currentNode.hCost){
 				currentNode = openSet[i];
 				this.openSet.splice(i,1);
@@ -89,20 +106,9 @@ function PathFinding(){
 				
 				if(currentNode.position == targetNode.position){
 					console.log("The solution has been found!");
+					this.retracePath();
 					clearInterval(ViewLoop);
-				}
-				
-				var neighbours = this.getNeighbours(currentNode);
-				neighbours.forEach(function(neighbourNode){
-					var newMovementCostToNeighbour = currentNode.gCost + this.getDistance(currentNode, neighbourNode);
-					if(newMovementCostToNeighbour < neighbourNode.gCost || openSet.indexOf(neighbourNode) == -1){
-						neighbourNode.gCost = newMovementCostToNeighbour;
-						neighbourNode.hCost = this.getDistance(neighbourNode, this.targetNode);
-						neighbourNode.parentNode = currentNode;
-						this.openSet.push(neighbourNode)
-					}
-				});
-				
+				}				
 			}	
 		}
 	},
