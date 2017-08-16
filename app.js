@@ -4,6 +4,11 @@ var ctx = canvas.getContext("2d");
 function Node(walkable, nodePosition){
 	this.isWalkable = walkable,
 	this.position = nodePosition
+	this.gCost,
+	this.hCost,
+	this.fCost = function(){
+		return this.gCost + this.fCost;
+	}
 	this.draw = function(color, size){
 		ctx.fillStyle = color;
   		ctx.fillRect(this.position.x*size.x, this.position.y*size.y, size.x, size.y);
@@ -26,8 +31,47 @@ function Grid(worldSize){
 	}
 }
 
-//declare the grid
-var grid = new Grid(new Vector2d(10,10));
+function PathFinding(){
+	this.grid = new Grid(new Vector2d(10,10)),
+	this.startNode,
+	this.targetNode,
+	this.openSet = [],
+	this.closedSet = [],
+	this.InitPath = function(startPosition, targetPosition){
+		//set grid
+		this.grid.initGrid();
 
-//init the grid
-grid.initGrid();
+		//set pathfinding
+		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
+		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
+		this.openSet.push(this.startNode);
+	}
+	this.FindPath = function(){
+		var currentNode = this.openSet[0];
+		for(i=0; i<this.openSet.length; i++){
+			if(this.openSet[i].fCost() < currentNode.fCost() || (this.openSet[i].fCost() == currentNode.fCost()) && this.openSet[i].hCost < currentNode.hCost){
+				currentNode = openSet[i];
+				this.openSet.splice(i,1);
+				this.closedSet.push(currentNode);
+			}	
+		}
+	}
+}
+
+var PathFinder = new PathFinding();
+PathFinder.InitPath(new Vector2d(0,0), new Vector2d(9,9));
+
+
+//Progress interval to see
+var ViewLoop = setInterval(function(){
+	if(PathFinder.openSet.length == 0){
+		console.log("no solution possible...");
+		clearInterval(ViewLoop);
+	}
+	else{
+		PathFinder.FindPath();
+	}
+}, 100);
+
+
+
