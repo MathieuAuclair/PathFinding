@@ -36,6 +36,7 @@ function PathFinding(){
 	this.grid = new Grid(new Vector2d(10,10)),
 	this.startNode,
 	this.targetNode,
+	this.currentNode,
 	this.openSet = [],
 	this.closedSet = [],
 	this.InitPath = function(startPosition, targetPosition){
@@ -47,10 +48,12 @@ function PathFinding(){
 		this.startNode = this.grid.nodes[startPosition.x][startPosition.y];
 		this.startNode.hCost = this.getDistance(this.startNode, this.targetNode);
 		this.startNode.gCost = 14;
+		this.currentNode = this.startNode;
 		this.openSet.push(this.startNode);
 		
 		//color the end line
 		this.targetNode.draw("blue", this.grid.nodeSize);
+		this.startNode.draw("orange", this.grid.nodeSize);
 	},
 	this.getDistance = function(nodeA, nodeB){ //heuristic
 		var distX = Math.abs(nodeA.position.x - nodeB.position.x);
@@ -82,31 +85,29 @@ function PathFinding(){
 		return neighbours;
 	},
 	this.FindPath = function(){
-		var currentNode = this.openSet[0];
-		currentNode.draw("green", this.grid.nodeSize);
 		for(i=0; i<this.openSet.length; i++){
-			//fucken ugly but well....
-			
-			var neighbours = this.getNeighbours(currentNode);
+			var neighbours = this.getNeighbours(this.currentNode);
 			neighbours.forEach(function(neighbourNode){
-				var newMovementCostToNeighbour = currentNode.gCost + PathFinder.getDistance(currentNode, neighbourNode);
+				var newMovementCostToNeighbour = PathFinder.currentNode.gCost + PathFinder.getDistance(PathFinder.currentNode, neighbourNode);
 				if(newMovementCostToNeighbour < neighbourNode.gCost || PathFinder.openSet.indexOf(neighbourNode) == -1){
 					neighbourNode.gCost = newMovementCostToNeighbour;
 					neighbourNode.hCost = PathFinder.getDistance(neighbourNode, PathFinder.targetNode);
-					neighbourNode.parentNode = currentNode;
+					neighbourNode.parentNode = PathFinder.currentNode;
+					neighbourNode.draw("green", PathFinder.grid.nodeSize);
 					PathFinder.openSet.push(neighbourNode);
 				}
 			});
 
 
 
-			if(this.openSet[i].fCost() < currentNode.fCost() || (this.openSet[i].fCost() == currentNode.fCost()) && this.openSet[i].hCost < currentNode.hCost){
-				currentNode = this.openSet[i];
+			if(this.openSet[i].fCost() < this.currentNode.fCost() || (this.openSet[i].fCost() == this.currentNode.fCost()) && this.openSet[i].hCost < this.currentNode.hCost){
+				this.currentNode = this.openSet[i];
+				this.currentNode.draw("red", this.grid.nodeSize);
 				this.openSet.splice(i,1);
-				this.closedSet.push(currentNode);
-				currentNode.draw("red", this.grid.nodeSize);
+				this.closedSet.push(this.currentNode);
+				this.currentNode.draw("red", this.grid.nodeSize);
 				
-				if(currentNode.position == targetNode.position){
+				if(this.currentNode.position == this.targetNode.position){
 					console.log("The solution has been found!");
 					this.retracePath();
 					clearInterval(ViewLoop);
@@ -140,7 +141,7 @@ var ViewLoop = setInterval(function(){
 	else{
 		PathFinder.FindPath();
 	}
-}, 100);
+}, 200);
 
 
 
