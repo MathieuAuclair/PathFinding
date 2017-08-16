@@ -1,41 +1,33 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
-//open node list
-var openNode = [];
-
-//closed node list
-var closedNode = [];
-
-//set the end of the path
-var end = {"x":9,"y":9};
-
-//start point
-openNode.push(grid[0][0]);
-
-//point on the grid object
-function node(){
-	this.h,
-	this.g,
-	this.f,
-	this.parentNode
-}
-
-//declare size of the grid
-var grid = new Array(10,10);
-
-//init all nodes from grid values
-for(i=0; i < grid.length; i++){
-	for(j=0; j < grid[0].length; j++){
-		grid[i][j].h = (Math.abs(i-end.x) + Math.abs(j-end.y));
-		setNodeAsParent(i,j);
+function Node(walkable, nodePosition){
+	this.isWalkable = walkable,
+	this.position = nodePosition
+	this.draw = function(color, size){
+		ctx.fillStyle = color;
+  		ctx.fillRect(this.position.x*size.x, this.position.y*size.y, size.x, size.y);
+		ctx.strokeRect(this.position.x*size.x, this.position.y*size.y, size.x, size.y);
 	}
 }
 
-function setNodeAsParent(x,y){
-	grid[x][y]
+function Grid(worldSize){
+	this.gridWorldSize = worldSize,
+	this.nodeSize = new Vector2d((canvas.width/this.gridWorldSize.x), (canvas.height/this.gridWorldSize.y)),
+	this.nodes = new Array(10),
+	this.initGrid = function(){
+		for(x=0; x < this.gridWorldSize.x; x++){
+			this.nodes[x] = new Array(10);
+			for(y=0; y < this.gridWorldSize.y; y++){
+				this.nodes[x][y] = new Node(true, new Vector2d(x,y));
+				this.nodes[x][y].draw("white", this.nodeSize);
+			}
+		}
+	}
 }
 
+//declare the grid
+var grid = new Grid(new Vector2d(10,10));
 
-ctx.fillStyle = "red";
-ctx.fillRect(10,10,20,20);
+//init the grid
+grid.initGrid();
