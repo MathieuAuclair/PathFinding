@@ -29,10 +29,17 @@ function Grid(worldSize){
 				this.nodes[x][y].draw("white", this.nodeSize);
 			}
 		}
+	},
+	this.setWalls = function(walls){
+		walls.forEach(function(wall){
+			PathFinder.grid.nodes[wall.x][wall.y].isWalkable = false;
+			PathFinder.grid.nodes[wall.x][wall.y].draw("gray", PathFinder.grid.nodeSize);
+		});
 	}
+
 }
 
-function PathFinding(){
+function PathFinding(walls){
 	this.grid = new Grid(new Vector2d(10,10)),
 	this.startNode,
 	this.targetNode,
@@ -42,6 +49,7 @@ function PathFinding(){
 	this.InitPath = function(startPosition, targetPosition){
 		//set grid
 		this.grid.initGrid();
+		this.grid.setWalls(walls);
 
 		//set pathfinding
 		this.targetNode = this.grid.nodes[targetPosition.x][targetPosition.y];
@@ -128,20 +136,6 @@ function PathFinding(){
 	}
 }
 
-var PathFinder = new PathFinding();
-PathFinder.InitPath(new Vector2d(0,0), new Vector2d(9,9));
-
-
-//Progress interval to see
-var ViewLoop = setInterval(function(){
-	if(PathFinder.openSet.length == 0){
-		console.log("no solution possible...");
-		clearInterval(ViewLoop);
-	}
-	else{
-		PathFinder.FindPath();
-	}
-}, 200);
 
 
 
